@@ -3,28 +3,7 @@ import * as FileSystem from "./fileSystem";
 import * as InstagramApi from "./instagramApi";
 import * as Utils from "./utils";
 import {Command} from 'commander';
-import { InstagramC } from "./instagram";
-const Instagram = new InstagramC()
-
-Instagram.getCsrfToken().then((csrf: string) =>
-{
-    Instagram.csrfToken = csrf;
-}).then(() =>
-{
-    return Instagram.auth('florian.mold', '').then((sessionId: any) =>
-    {
-        Instagram.sessionId = sessionId
-
-        return Instagram.getUserDataByUsername('username-for-get').then((t: any) =>
-        {
-            return Instagram.getUserFollowers(t.graphql.user.id).then((t: any) =>
-            {
-                console.log(t); // - instagram followers for user "username-for-get"
-            })
-        })
-
-    })
-}).catch(console.error);
+import dotenv from 'dotenv';
 
 const program = new Command();
 program
@@ -36,35 +15,39 @@ program
     .option('-uL, --unfollower-list', 'Show complete list of people that unfollowed you.')
     .parse(process.argv);
 
-
-
 FileSystem.checkDirectories();
 
 const oldDate = Utils.getDate();
 oldDate[2] = oldDate[2] - 1;
 
-const followers = InstagramApi.getFollowers();
+dotenv.config()
+const username = process.env.IG_USER ?? "";
+const password = process.env.IG_PASSWORD ?? "";
 
-FileSystem.saveFollowers(Utils.getDateString(), followers);
-const oldFollowers = FileSystem.loadFollowers(Utils.getDateString(oldDate));
+InstagramApi.getFollowers(username, password).then(followers => {
 
-const [followed, unfollowed] = FollowerHelper.compareFollowers(followers, oldFollowers);
+    FileSystem.saveFollowers(Utils.getDateString(), followers);
+    const oldFollowers = FileSystem.loadFollowers(Utils.getDateString(oldDate));
 
-FileSystem.appendFollowers(followed);
-FileSystem.appendUnfollowers(unfollowed);
+    const [followed, unfollowed] = FollowerHelper.compareFollowers(followers, oldFollowers);
 
-if (program.followed)
-    console.log("Followed:", followed);
+    FileSystem.appendFollowers(followed);
+    FileSystem.appendUnfollowers(unfollowed);
 
-if (program.unfollowed)
-    console.log("Unfollowed:", unfollowed);
+    if (program.followed)
+        console.log("Followed:", followed);
 
-if (program.showFollowers)
-    console.log(`Followers (${program.showFollowers}):`, FileSystem.loadFollowers(program.showFollowers));
+    if (program.unfollowed)
+        console.log("Unfollowed:", unfollowed);
 
-if (program.followerList)
-    console.log("Complete Followed List:", FileSystem.loadFollowed());
+    if (program.showFollowers)
+        console.log(`Followers (${program.showFollowers}):`, FileSystem.loadFollowers(program.showFollowers));
 
-if (program.unfollowerList)
-    console.log("Complete Unfollowed List:", FileSystem.loadUnfollowed());
+    if (program.followerList)
+        console.log("Complete Followed List:", FileSystem.loadFollowed());
+
+    if (program.unfollowerList)
+        console.log("Complete Unfollowed List:", FileSystem.loadUnfollowed());
+});
+
 
