@@ -13,6 +13,9 @@ program
     .option('-F, --show-followers <date>', 'Show follower-list on the given date.')
     .option('-fL, --follower-list', 'Show complete list of people that followed you.')
     .option('-uL, --unfollower-list', 'Show complete list of people that unfollowed you.')
+    .option('-aF, --accounts-not-follow', 'Accounts that do not follow you.')
+    .option('-aU, --accounts-you-not-follow', 'Accounts that you do not follow.')
+    .option('-c, --follow-counts', 'Prints the amount of followers and followed people.')
     .parse(process.argv);
 
 FileSystem.checkDirectories();
@@ -24,7 +27,7 @@ dotenv.config()
 const username = process.env.IG_USER ?? "";
 const password = process.env.IG_PASSWORD ?? "";
 
-InstagramApi.getFollowers(username, password).then(followers => {
+InstagramApi.getFollowers(username, password).then(async followers => {
 
     FileSystem.saveFollowers(Utils.getDateString(), followers);
     const oldFollowers = FileSystem.loadFollowers(Utils.getDateString(oldDate));
@@ -48,6 +51,22 @@ InstagramApi.getFollowers(username, password).then(followers => {
 
     if (program.unfollowerList)
         console.log("Complete Unfollowed List:", FileSystem.loadUnfollowed());
+
+    if (program.followCounts) {
+        const followed = await InstagramApi.getFollowed(username, password);
+        console.log("Followers:", followers.length);
+        console.log("Followed:", followed.length);
+    }
+
+    if (program.accountsYouNotFollow) {
+        const followed = await InstagramApi.getFollowed(username, password);
+        console.log("Accounts that you do follow:", FollowerHelper.compareFollowers(followed, followers)[1]);
+    }
+
+    if (program.accountsNotFollow) {
+        const followed = await InstagramApi.getFollowed(username, password);
+        console.log("Accounts that you do follow:", FollowerHelper.compareFollowers(followed, followers)[0]);
+    }
 });
 
 
