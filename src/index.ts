@@ -13,8 +13,8 @@ program
     .option('-F, --show-followers <date>', 'Show follower-list on the given date.')
     .option('-fL, --follower-list', 'Show complete list of people that followed you.')
     .option('-uL, --unfollower-list', 'Show complete list of people that unfollowed you.')
-    .option('-aF, --accounts-not-follow', 'Accounts that do not follow you.')
-    .option('-aU, --accounts-you-not-follow', 'Accounts that you do not follow.')
+    .option('-aF, --accounts-not-follow', 'Accounts that you follow, but don\'t follow back:')
+    .option('-aU, --accounts-you-not-follow', 'Accounts that you do not follow, but follow you:')
     .option('-c, --follow-counts', 'Prints the amount of followers and followed people.')
     .parse(process.argv);
 
@@ -60,12 +60,18 @@ InstagramApi.getFollowers(username, password).then(async followers => {
 
     if (program.accountsYouNotFollow) {
         const followed = await InstagramApi.getFollowed(username, password);
-        console.log("Accounts that you do follow:", FollowerHelper.compareFollowers(followed, followers)[1]);
+        console.log(
+            "Accounts that you do not follow, but follow you:",
+            FollowerHelper.compareFollowers(followed, followers)[1]
+        );
     }
 
     if (program.accountsNotFollow) {
         const followed = await InstagramApi.getFollowed(username, password);
-        console.log("Accounts that you do follow:", FollowerHelper.compareFollowers(followed, followers)[0]);
+        console.log(
+            "Accounts that you follow, but don't follow back:",
+            FollowerHelper.compareFollowers(followed, followers)[0]
+        );
     }
 });
 
