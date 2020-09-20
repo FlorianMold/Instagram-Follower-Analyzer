@@ -3,6 +3,28 @@ import * as FileSystem from "./fileSystem";
 import * as InstagramApi from "./instagramApi";
 import * as Utils from "./utils";
 import {Command} from 'commander';
+import { InstagramC } from "./instagram";
+const Instagram = new InstagramC()
+
+Instagram.getCsrfToken().then((csrf: string) =>
+{
+    Instagram.csrfToken = csrf;
+}).then(() =>
+{
+    return Instagram.auth('florian.mold', '').then((sessionId: any) =>
+    {
+        Instagram.sessionId = sessionId
+
+        return Instagram.getUserDataByUsername('username-for-get').then((t: any) =>
+        {
+            return Instagram.getUserFollowers(t.graphql.user.id).then((t: any) =>
+            {
+                console.log(t); // - instagram followers for user "username-for-get"
+            })
+        })
+
+    })
+}).catch(console.error);
 
 const program = new Command();
 program
@@ -13,6 +35,8 @@ program
     .option('-fL, --follower-list', 'Show complete list of people that followed you.')
     .option('-uL, --unfollower-list', 'Show complete list of people that unfollowed you.')
     .parse(process.argv);
+
+
 
 FileSystem.checkDirectories();
 
