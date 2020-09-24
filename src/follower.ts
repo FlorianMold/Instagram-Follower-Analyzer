@@ -1,3 +1,5 @@
 export type Follower = {
-    name: string;
-}
+  name: string;
+};
+
+export const getFollowerName = (follower: Follower) => follower.name;
