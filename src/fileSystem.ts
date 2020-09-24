@@ -14,6 +14,30 @@ export const checkDirectories = (): void => {
     }
 }
 
+const descendingSort = (a: string, b: string) => a === b ? 0 : a > b ? -1 : 1;
+
+/**
+ * Loads all follower lists from the file-system
+ */
+export const loadFollowerLists = (): string[] => {
+    return fs.readdirSync(directory).filter(value => ![followedList, unfollowedList]
+        .map(value1 => value1 += ".json")
+        .includes(value))
+        .sort(descendingSort)
+}
+
+/**
+ * Finds the follower-list that comes before the current.
+ */
+export const findLastFollowerListName = (): string => {
+    const followerLists = loadFollowerLists();
+    if (followerLists.length <= 1) {
+        return "";
+    }
+    followerLists.sort(descendingSort);
+    return followerLists[1].split('.')[0];
+}
+
 /**
  * Save follower-list with the given name.
  */
