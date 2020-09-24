@@ -20,17 +20,16 @@ program
     .option('-l, --list', 'List all filenames of the lists with followers.')
     .parse(process.argv);
 
-FileSystem.checkDirectories();
-
-
 dotenv.config()
 const username = process.env.IG_USER ?? "";
 const password = process.env.IG_PASSWORD ?? "";
 
 if(!username || !password) {
-    console.log("Please provide username or password");
+    console.log("Please provide username or password!");
     process.exit(1);
 }
+
+FileSystem.checkDirectories();
 
 InstagramApi.getFollowers(username, password).then(async followers => {
 
