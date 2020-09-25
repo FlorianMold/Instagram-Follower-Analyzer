@@ -1,9 +1,11 @@
 import { Follower } from './follower';
 import fs from 'fs';
 
-const directory = './followers';
+const directory = __dirname + '/followers';
 const followedList = 'followed';
 const unfollowedList = 'unfollowed';
+
+console.log(directory);
 
 /**
  * Check if the needed directories exists and creates them if needed.

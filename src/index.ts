@@ -8,7 +8,7 @@ import { getFollowerName } from './follower';
 
 const program = new Command();
 program
-  .version('0.0.1')
+  .version('1.0.0')
   .option('-f, --followed', 'Show people that followed you today.')
   .option('-u, --unfollowed', 'Show people that unfollowed you today.')
   .option(
